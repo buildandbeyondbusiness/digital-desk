@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Digital Desk POS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <meta name="theme-color" content="#5D5FEF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-512.png">
+    <link rel="manifest" href="manifest.json?v=6">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a;
+            overscroll-behavior-y: contain;
+            touch-action: manipulation;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .tab-content { display: none; animation: slideUp 0.3s ease-out forwards; }
+        .tab-content.active { display: block; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex justify-center text-slate-800 selection:bg-[#5D5FEF] selection:text-white">
+
+    <div class="w-full max-w-[440px] bg-slate-50 min-h-screen relative shadow-2xl flex flex-col overflow-hidden">
+        
+        <!-- LOGIN MODAL -->
+        <div id="login-modal" class="absolute inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-6 animate-[fadeIn_0.3s_ease-out]">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl">
+                <div class="w-16 h-16 bg-[#5D5FEF] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-200">
+                    <i data-lucide="lock" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Welcome</h2>
+                <p class="text-slate-500 mb-8 font-medium">Sign in to access your POS</p>
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                    <input required id="login-email" type="email" placeholder="Email" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-4 text-lg outline-none focus:border-[#5D5FEF] font-medium" />
+                    <input required id="login-password" type="password" placeholder="Password" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-4 text-lg outline-none focus:border-[#5D5FEF] font-medium" />
+                    <button type="submit" id="login-btn" class="w-full py-5 bg-[#5D5FEF] text-white rounded-2xl text-xl font-bold mt-4 active:scale-95 transition-transform flex items-center justify-center shadow-xl shadow-indigo-200">
+                        Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- HEADER WITH LIVE SYNC INDICATOR & PWA INSTALL BTN -->
+        <header class="px-6 pt-12 pb-6 bg-white rounded-b-3xl shadow-sm z-10 flex justify-between items-start">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 id="page-title" class="text-2xl font-extrabold text-slate-900">Dashboard</h1>
+                    <div id="syncStatusBadge" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-50 text-green-600 border border-green-200">
+                        <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        <span id="syncStatusText">Live Sync</span>
+                    </div>
+                </div>
+                <p id="user-subtitle" class="text-slate-500 font-medium text-sm mt-1">Hello, Admin</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden p-2 bg-green-50 text-green-600 rounded-xl font-bold text-xs flex items-center gap-1 animate-pulse" title="Install App">
+                    <i data-lucide="download" class="w-4 h-4"></i> Install
+                </button>
+                <a href="/admin/" target="_blank" title="Admin Dashboard" class="p-2 bg-indigo-50 text-[#5D5FEF] rounded-xl font-bold text-xs flex items-center gap-1">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Admin
+                </a>
+                <button onclick="logout()" class="p-2 bg-slate-50 rounded-xl text-slate-400 active:bg-slate-100 transition-colors" title="Logout">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto px-6 py-6 pb-28 hide-scrollbar">
+            
+            <!-- HOME TAB -->
+            <div id="home-tab" class="tab-content active space-y-6">
+                <!-- Revenue Card -->
+                <div class="bg-[#5D5FEF] p-6 rounded-3xl text-white shadow-lg shadow-indigo-200">
+                    <div class="text-indigo-100 font-medium mb-1">Total Sales (Today)</div>
+                    <div id="total-revenue" class="text-5xl font-black tracking-tight">₹0.00</div>
+                </div>
+
+                <!-- Alerts -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-500"></i>
+                        Attention Needed
+                    </h2>
+                    <div id="alerts-container" class="space-y-3">
+                        <!-- Alerts rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVENTORY TAB -->
+            <div id="inventory-tab" class="tab-content space-y-4">
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            placeholder="Search items..." 
+                            class="w-full bg-white border-2 border-slate-100 rounded-2xl py-3 pl-12 pr-4 outline-none focus:border-[#5D5FEF] font-medium transition-colors"
+                        />
+                    </div>
+                    <button 
+                        onclick="openWizard()"
+                        class="bg-slate-900 text-white p-3 rounded-2xl font-bold flex items-center justify-center active:scale-95 transition-transform"
+                        title="Add New Product"
+                    >
+                        <i data-lucide="plus" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div id="products-list" class="space-y-3">
+                    <!-- Products rendered via JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- BOTTOM NAV & HUGE SELL BUTTON -->
+        <nav class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-8 py-5 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20">
+            <button onclick="switchTab('home')" id="nav-home" class="p-2 transition-colors text-[#5D5FEF]">
+                <i data-lucide="home" class="w-8 h-8" stroke-width="2.5"></i>
+            </button>
+            
+            <!-- THE SELLING BUTTON -->
+            <button 
+                onclick="openPOS()"
+                class="absolute left-1/2 -top-8 -translate-x-1/2 w-20 h-20 bg-[#5D5FEF] text-white rounded-[2rem] flex items-center justify-center shadow-xl shadow-indigo-300 hover:bg-indigo-600 active:scale-95 transition-transform"
+            >
+                <i data-lucide="shopping-bag" class="w-10 h-10"></i>
+            </button>
+
+            <button onclick="switchTab('inventory')" id="nav-inventory" class="p-2 transition-colors text-slate-400">
+                <i data-lucide="package" class="w-8 h-8" stroke-width="2.5"></i>
+            </button>
+        </nav>
+
+        <!-- POS SCREEN MODAL (WITH CHECKOUT SEARCH BAR) -->
+        <div id="pos-modal" class="hidden absolute inset-0 bg-slate-50 z-50 flex-col animate-[slideUp_0.3s_ease-out]">
+            <div class="px-6 py-4 bg-white shadow-sm z-10 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-black text-slate-900">Checkout</h2>
+                    <button onclick="closePOS()" class="p-2 bg-slate-100 rounded-full active:bg-slate-200">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- CHECKOUT SEARCH BAR -->
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input 
+                        type="text" 
+                        id="pos-search-input"
+                        placeholder="Search items to charge..." 
+                        oninput="handlePosSearch(event)"
+                        class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-2.5 pl-10 pr-4 outline-none focus:border-[#5D5FEF] font-medium text-xs transition-colors"
+                    />
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 pb-48 hide-scrollbar">
+                <div id="pos-product-grid" class="grid grid-cols-2 gap-4">
+                    <!-- POS Products rendered via JS -->
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 right-0 bg-white p-6 rounded-t-3xl shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="clearCart()" class="text-slate-400 font-bold underline p-2 active:text-slate-600">Clear</button>
+                    <div class="text-right">
+                        <div id="cart-count" class="text-slate-500 font-bold mb-1">0 Items</div>
+                        <div id="cart-total" class="text-4xl font-black text-slate-900">₹0.00</div>
+                    </div>
+                </div>
+                
+                <!-- Payment mode selector -->
+                <div class="flex gap-2 mb-4">
+                  <button onclick="setPaymentMode('CASH')" id="pm-cash" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-900 text-white">Cash</button>
+                  <button onclick="setPaymentMode('UPI')" id="pm-upi" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600">UPI</button>
+                  <button onclick="setPaymentMode('CARD')" id="pm-card" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600">Card</button>
+                </div>
+                
+                <button 
+                    id="charge-btn"
+                    onclick="checkout()"
+                    class="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-100 text-slate-400"
+                >
+                    <i data-lucide="check" class="w-8 h-8"></i> CHARGE
+                </button>
+            </div>
+        </div>
+
+        <!-- NEW PRODUCT STEP WIZARD -->
+        <div id="wizard-modal" class="hidden absolute inset-0 bg-slate-900 z-50 flex-col animate-[fadeIn_0.2s_ease-out]">
+            
+            <!-- STEP 1: CAPTURE PHOTO -->
+            <div id="wiz-step-1" class="flex-1 flex flex-col p-6 justify-between text-white">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black">New Product</h2>
+                    <button onclick="closeWizard()" class="p-2 bg-slate-800 rounded-full active:scale-95"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
+
+                <div class="my-auto flex flex-col items-center">
+                    <label for="wiz-photo-input" class="w-full aspect-square max-w-[320px] bg-slate-800/80 border-4 border-dashed border-slate-700 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-[#5D5FEF] transition-all relative overflow-hidden group shadow-2xl">
+                        <img id="wiz-step1-preview" class="absolute inset-0 w-full h-full object-cover hidden">
+                        <div id="wiz-step1-placeholder" class="flex flex-col items-center p-6 text-center">
+                            <div class="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="camera" class="w-10 h-10 text-[#5D5FEF]"></i>
+                            </div>
+                            <p class="text-lg font-bold text-slate-200">Tap to Take Photo</p>
+                            <p class="text-xs text-slate-400 mt-1">Camera or File Upload</p>
+                        </div>
+                    </label>
+                    <input id="wiz-photo-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleWizardPhotoSelected(event)">
+                </div>
+
+                <div class="flex justify-center pb-6">
+                    <label for="wiz-photo-input" class="w-20 h-20 rounded-full bg-white border-4 border-slate-700 flex items-center justify-center cursor-pointer active:scale-90 transition-transform shadow-2xl shadow-indigo-500/20">
+                        <div class="w-16 h-16 rounded-full bg-[#5D5FEF] flex items-center justify-center">
+                            <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- STEP 2: UPLOADING -->
+            <div id="wiz-step-2" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-white text-center">
+                <div class="w-24 h-24 rounded-full border-4 border-slate-700 border-t-[#5D5FEF] animate-spin flex items-center justify-center mb-6">
+                    <i data-lucide="refresh-cw" class="w-10 h-10 text-[#5D5FEF]"></i>
+                </div>
+                <h2 class="text-3xl font-black tracking-wide">Uploading...</h2>
+                <p class="text-slate-400 text-sm mt-2">Sending photo to ImgBB CDN</p>
+            </div>
+
+            <!-- STEP 3: PREVIEW & DETAILS -->
+            <div id="wiz-step-3" class="hidden flex-1 flex flex-col bg-slate-50 text-slate-900 overflow-hidden">
+                <div class="px-6 py-5 bg-white flex items-center justify-between shadow-sm z-10">
+                    <h2 class="text-2xl font-black">Product Details</h2>
+                    <button onclick="saveWizardProduct()" class="w-12 h-12 bg-[#5D5FEF] text-white rounded-full flex items-center justify-center shadow-lg shadow-indigo-200 active:scale-90 transition-transform" title="Save Product">
+                        <i data-lucide="check" class="w-7 h-7"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar">
+                    <div class="relative w-full h-48 bg-slate-200 rounded-3xl overflow-hidden shadow-md border-2 border-white">
+                        <img id="wiz-step3-preview" src="" class="w-full h-full object-cover">
+                        <div class="absolute top-3 right-3 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md">
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Product Name</label>
+                        <input required id="wiz-name" type="text" placeholder="e.g. Cold Coffee" class="w-full bg-white border-2 border-slate-200 rounded-2xl py-3.5 px-4 text-lg font-bold outline-none focus:border-[#5D5FEF]" />
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl border-2 border-slate-100 space-y-3 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pricing & Inventory</h3>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+                            <select id="wiz-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-[#5D5FEF]">
+                                <option value="1">General</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Buy Price (₹)</label>
+                                <input required id="wiz-buy-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-sm font-bold outline-none focus:border-[#5D5FEF]" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Sell Price (₹)</label>
+                                <input required id="wiz-sell-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-sm font-bold outline-none focus:border-[#5D5FEF]" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Stock Quantity</label>
+                            <input required id="wiz-stock" type="number" value="10" placeholder="Units" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-3 text-sm font-bold outline-none focus:border-[#5D5FEF]" />
+                        </div>
+                    </div>
+
+                    <button onclick="saveWizardProduct()" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-lg font-bold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle" class="w-6 h-6"></i> Save Product
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: DONE -->
+            <div id="wiz-step-4" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-white text-center">
+                <div class="w-32 h-32 rounded-full bg-green-500 text-white flex items-center justify-center mb-6 shadow-2xl shadow-green-500/40 animate-[bounce_1s_ease-out]">
+                    <i data-lucide="check" class="w-20 h-20" stroke-width="3"></i>
+                </div>
+                <h2 class="text-5xl font-black tracking-tight capitalize">Done</h2>
+                <p class="text-slate-400 text-base mt-3 font-medium">Product added to catalog</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="app.js?v=7"></script>
+    <script>
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('pwaInstallBtn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        function triggerPwaInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    document.getElementById('pwaInstallBtn')?.classList.add('hidden');
+                });
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
