@@ -16,7 +16,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icons/icon-512.png">
-    <link rel="manifest" href="manifest.json?v=6">
+    <link rel="manifest" href="manifest.json?v=7">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -29,6 +29,10 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        .header-safe-top {
+            padding-top: max(2.75rem, calc(env(safe-area-inset-top) + 0.5rem));
+        }
+
         .tab-content { display: none; animation: slideUp 0.3s ease-out forwards; }
         .tab-content.active { display: block; }
         @keyframes slideUp {
@@ -60,7 +64,7 @@
         </div>
 
         <!-- HEADER WITH LIVE SYNC INDICATOR & PWA INSTALL BTN -->
-        <header class="px-6 pt-12 pb-6 bg-white rounded-b-3xl shadow-sm z-10 flex justify-between items-start">
+        <header class="px-6 pb-6 header-safe-top bg-white rounded-b-3xl shadow-sm z-10 flex justify-between items-start">
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="page-title" class="text-2xl font-extrabold text-slate-900">Dashboard</h1>
@@ -72,13 +76,13 @@
                 <p id="user-subtitle" class="text-slate-500 font-medium text-sm mt-1">Hello, Admin</p>
             </div>
             <div class="flex items-center gap-2">
-                <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden p-2 bg-green-50 text-green-600 rounded-xl font-bold text-xs flex items-center gap-1 animate-pulse" title="Install App">
+                <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden p-2 bg-green-50 text-green-600 rounded-xl font-bold text-xs flex items-center gap-1 animate-pulse min-h-[44px]" title="Install App">
                     <i data-lucide="download" class="w-4 h-4"></i> Install
                 </button>
-                <a href="/admin/" target="_blank" title="Admin Dashboard" class="p-2 bg-indigo-50 text-[#5D5FEF] rounded-xl font-bold text-xs flex items-center gap-1">
+                <a href="/admin/" target="_blank" title="Admin Dashboard" class="p-2.5 bg-indigo-50 text-[#5D5FEF] rounded-xl font-bold text-xs flex items-center gap-1 min-h-[44px]">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Admin
                 </a>
-                <button onclick="logout()" class="p-2 bg-slate-50 rounded-xl text-slate-400 active:bg-slate-100 transition-colors" title="Logout">
+                <button onclick="logout()" class="p-2.5 bg-slate-50 rounded-xl text-slate-400 active:bg-slate-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" title="Logout">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -116,12 +120,12 @@
                             type="text" 
                             id="search-input"
                             placeholder="Search items..." 
-                            class="w-full bg-white border-2 border-slate-100 rounded-2xl py-3 pl-12 pr-4 outline-none focus:border-[#5D5FEF] font-medium transition-colors"
+                            class="w-full bg-white border-2 border-slate-100 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:border-[#5D5FEF] font-medium transition-colors"
                         />
                     </div>
                     <button 
                         onclick="openWizard()"
-                        class="bg-slate-900 text-white p-3 rounded-2xl font-bold flex items-center justify-center active:scale-95 transition-transform"
+                        class="bg-slate-900 text-white p-3.5 rounded-2xl font-bold flex items-center justify-center active:scale-95 transition-transform min-w-[48px] min-h-[48px]"
                         title="Add New Product"
                     >
                         <i data-lucide="plus" class="w-6 h-6"></i>
@@ -135,7 +139,7 @@
         </main>
 
         <!-- BOTTOM NAV & HUGE SELL BUTTON -->
-        <nav class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-8 py-5 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20">
+        <nav class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-8 py-5 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-20 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <button onclick="switchTab('home')" id="nav-home" class="p-2 transition-colors text-[#5D5FEF]">
                 <i data-lucide="home" class="w-8 h-8" stroke-width="2.5"></i>
             </button>
@@ -153,12 +157,12 @@
             </button>
         </nav>
 
-        <!-- POS SCREEN MODAL (WITH CHECKOUT SEARCH BAR) -->
-        <div id="pos-modal" class="hidden absolute inset-0 bg-slate-50 z-50 flex-col animate-[slideUp_0.3s_ease-out]">
+        <!-- POS SCREEN MODAL -->
+        <div id="pos-modal" class="hidden absolute inset-0 bg-slate-50 z-50 flex-col animate-[slideUp_0.3s_ease-out] pt-[max(1rem,env(safe-area-inset-top))]">
             <div class="px-6 py-4 bg-white shadow-sm z-10 space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 class="text-2xl font-black text-slate-900">Checkout</h2>
-                    <button onclick="closePOS()" class="p-2 bg-slate-100 rounded-full active:bg-slate-200">
+                    <button onclick="closePOS()" class="p-2 bg-slate-100 rounded-full active:bg-slate-200 min-w-[44px] min-h-[44px] flex items-center justify-center">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
@@ -171,7 +175,7 @@
                         id="pos-search-input"
                         placeholder="Search items to charge..." 
                         oninput="handlePosSearch(event)"
-                        class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-2.5 pl-10 pr-4 outline-none focus:border-[#5D5FEF] font-medium text-xs transition-colors"
+                        class="w-full bg-slate-100 border border-slate-200 rounded-2xl py-3 pl-10 pr-4 outline-none focus:border-[#5D5FEF] font-medium text-xs transition-colors"
                     />
                 </div>
             </div>
@@ -182,7 +186,7 @@
                 </div>
             </div>
 
-            <div class="absolute bottom-0 left-0 right-0 bg-white p-6 rounded-t-3xl shadow-[0_-20px_40px_rgba(0,0,0,0.1)]">
+            <div class="absolute bottom-0 left-0 right-0 bg-white p-6 rounded-t-3xl shadow-[0_-20px_40px_rgba(0,0,0,0.1)] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
                 <div class="flex justify-between items-center mb-6">
                     <button onclick="clearCart()" class="text-slate-400 font-bold underline p-2 active:text-slate-600">Clear</button>
                     <div class="text-right">
@@ -193,15 +197,15 @@
                 
                 <!-- Payment mode selector -->
                 <div class="flex gap-2 mb-4">
-                  <button onclick="setPaymentMode('CASH')" id="pm-cash" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-900 text-white">Cash</button>
-                  <button onclick="setPaymentMode('UPI')" id="pm-upi" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600">UPI</button>
-                  <button onclick="setPaymentMode('CARD')" id="pm-card" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600">Card</button>
+                  <button onclick="setPaymentMode('CASH')" id="pm-cash" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all bg-slate-900 text-white min-h-[44px]">Cash</button>
+                  <button onclick="setPaymentMode('UPI')" id="pm-upi" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600 min-h-[44px]">UPI</button>
+                  <button onclick="setPaymentMode('CARD')" id="pm-card" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all bg-slate-100 text-slate-600 min-h-[44px]">Card</button>
                 </div>
                 
                 <button 
                     id="charge-btn"
                     onclick="checkout()"
-                    class="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-100 text-slate-400"
+                    class="w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-100 text-slate-400 min-h-[56px]"
                 >
                     <i data-lucide="check" class="w-8 h-8"></i> CHARGE
                 </button>
@@ -209,13 +213,13 @@
         </div>
 
         <!-- NEW PRODUCT STEP WIZARD -->
-        <div id="wizard-modal" class="hidden absolute inset-0 bg-slate-900 z-50 flex-col animate-[fadeIn_0.2s_ease-out]">
+        <div id="wizard-modal" class="hidden absolute inset-0 bg-slate-900 z-50 flex-col animate-[fadeIn_0.2s_ease-out] pt-[max(1rem,env(safe-area-inset-top))]">
             
             <!-- STEP 1: CAPTURE PHOTO -->
-            <div id="wiz-step-1" class="flex-1 flex flex-col p-6 justify-between text-white">
+            <div id="wiz-step-1" class="flex-1 flex flex-col p-6 justify-between text-white pb-[max(1.5rem,env(safe-area-inset-bottom))]">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-black">New Product</h2>
-                    <button onclick="closeWizard()" class="p-2 bg-slate-800 rounded-full active:scale-95"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    <button onclick="closeWizard()" class="p-2 bg-slate-800 rounded-full active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"><i data-lucide="x" class="w-6 h-6"></i></button>
                 </div>
 
                 <div class="my-auto flex flex-col items-center">
@@ -259,7 +263,7 @@
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar">
+                <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar pb-[max(2rem,env(safe-area-inset-bottom))]">
                     <div class="relative w-full h-48 bg-slate-200 rounded-3xl overflow-hidden shadow-md border-2 border-white">
                         <img id="wiz-step3-preview" src="" class="w-full h-full object-cover">
                         <div class="absolute top-3 right-3 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center shadow-md">
@@ -299,7 +303,7 @@
                         </div>
                     </div>
 
-                    <button onclick="saveWizardProduct()" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-lg font-bold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <button onclick="saveWizardProduct()" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-lg font-bold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 min-h-[52px]">
                         <i data-lucide="check-circle" class="w-6 h-6"></i> Save Product
                     </button>
                 </div>
@@ -318,7 +322,7 @@
 
     </div>
 
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
     <script>
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {

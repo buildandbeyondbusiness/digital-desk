@@ -13,12 +13,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <meta name="theme-color" content="#0F1115">
+    <meta name="theme-color" content="#171A21">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icons/icon-512.png">
-    <link rel="manifest" href="manifest.json?v=6">
+    <link rel="manifest" href="manifest.json?v=7">
     
     <style>
         body { 
@@ -30,6 +30,15 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* iPhone Dynamic Island & Notch Safe Area Padding */
+        .header-safe-top {
+            padding-top: max(2.75rem, calc(env(safe-area-inset-top) + 0.5rem));
+        }
+        .sidebar-safe-top {
+            padding-top: max(1.25rem, env(safe-area-inset-top));
+        }
+        
         .nav-item.active {
             background-color: #5B8CFF;
             color: #0F1115;
@@ -50,10 +59,10 @@
 </head>
 <body class="bg-[#0F1115] text-[#F8FAFC] min-h-screen flex flex-col md:flex-row overflow-x-hidden selection:bg-[#5B8CFF] selection:text-white">
 
-    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden backdrop-blur-xs"></div>
+    <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/70 z-40 hidden md:hidden backdrop-blur-xs"></div>
 
     <!-- SIDEBAR NAVIGATION -->
-    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-[#171A21] border-r border-[#2A2F3A] z-50 flex flex-col justify-between transition-transform duration-300 -translate-x-full md:translate-x-0 shrink-0">
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-64 bg-[#171A21] border-r border-[#2A2F3A] z-50 flex flex-col justify-between transition-transform duration-300 -translate-x-full md:translate-x-0 shrink-0 sidebar-safe-top">
         <div>
             <div class="p-5 border-b border-[#2A2F3A] flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -65,31 +74,31 @@
                         <p class="text-[10px] text-[#94A3B8] font-semibold uppercase tracking-wider">Store Admin</p>
                     </div>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden p-1.5 text-[#94A3B8] hover:text-[#F8FAFC]">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                <button onclick="toggleSidebar()" class="md:hidden p-2 text-[#94A3B8] hover:text-[#F8FAFC] min-w-[44px] min-h-[44px] flex items-center justify-center">
+                    <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
 
             <nav class="p-3 space-y-1">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                 </button>
-                <button onclick="switchTab('stock')" id="nav-stock" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
+                <button onclick="switchTab('stock')" id="nav-stock" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
                     <i data-lucide="package" class="w-4 h-4"></i> Stock & Products
                 </button>
-                <button onclick="switchTab('staff')" id="nav-staff" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
+                <button onclick="switchTab('staff')" id="nav-staff" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
                     <i data-lucide="users" class="w-4 h-4"></i> Staff & Leaves
                 </button>
-                <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
                     <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Sales Reports
                 </button>
-                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-[#94A3B8] hover:text-[#F8FAFC] transition-all">
                     <i data-lucide="settings" class="w-4 h-4"></i> Settings & Reset
                 </button>
             </nav>
         </div>
 
-        <div class="p-4 border-t border-[#2A2F3A] bg-[#0F1115]/50">
+        <div class="p-4 border-t border-[#2A2F3A] bg-[#0F1115]/50 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <div class="flex items-center justify-between">
                 <div>
                     <div id="sidebarUserName" class="text-xs font-bold text-[#F8FAFC]">Store Admin</div>
@@ -97,8 +106,8 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse"></span> Manager Access
                     </div>
                 </div>
-                <a href="/pos/" target="_blank" title="Launch POS" class="p-2 bg-[#5B8CFF]/10 text-[#5B8CFF] rounded-xl hover:bg-[#5B8CFF] hover:text-[#0F1115] transition-all">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                <a href="/pos/" target="_blank" title="Launch POS" class="p-2.5 bg-[#5B8CFF]/10 text-[#5B8CFF] rounded-xl hover:bg-[#5B8CFF] hover:text-[#0F1115] transition-all min-w-[44px] min-h-[44px] flex items-center justify-center">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                 </a>
             </div>
         </div>
@@ -107,30 +116,31 @@
     <!-- MAIN BODY CONTAINER -->
     <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto hide-scrollbar">
         
-        <header class="px-5 py-3.5 bg-[#171A21] border-b border-[#2A2F3A] sticky top-0 z-30 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2 bg-[#1E222B] border border-[#2A2F3A] rounded-xl text-[#F8FAFC]">
+        <!-- HEADER OPTIMIZED FOR IPHONE DYNAMIC ISLAND / NOTCH -->
+        <header class="px-5 pb-3.5 header-safe-top bg-[#171A21] border-b border-[#2A2F3A] sticky top-0 z-30 flex items-center justify-between shrink-0 shadow-md">
+            <div class="flex items-center gap-2.5">
+                <button onclick="toggleSidebar()" class="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#1E222B] border border-[#2A2F3A] rounded-xl text-[#F8FAFC] active:scale-95 transition-transform" title="Toggle Navigation">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
-                <h2 id="pageTitle" class="text-base font-extrabold text-[#F8FAFC]">Dashboard Overview</h2>
+                <h2 id="pageTitle" class="text-base md:text-lg font-extrabold text-[#F8FAFC] tracking-tight">Dashboard Overview</h2>
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="pwaInstallBtnAdmin" onclick="triggerPwaInstallAdmin()" class="hidden p-2 bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30 rounded-xl font-bold text-xs flex items-center gap-1 animate-pulse" title="Install Admin PWA">
-                    <i data-lucide="download" class="w-4 h-4"></i> Install PWA
+                <button id="pwaInstallBtnAdmin" onclick="triggerPwaInstallAdmin()" class="hidden px-3 py-2 bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30 rounded-xl font-bold text-xs flex items-center gap-1 animate-pulse" title="Install Admin PWA">
+                    <i data-lucide="download" class="w-4 h-4"></i> Install
                 </button>
-                <div id="syncStatusBadge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
+                <div id="syncStatusBadge" class="flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold transition-all bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30">
                     <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse"></span>
                     <span id="syncStatusText">Live Sync</span>
                 </div>
-                <button onclick="refreshData()" class="p-2 bg-[#1E222B] border border-[#2A2F3A] rounded-xl text-[#94A3B8] hover:text-[#5B8CFF] active:scale-95 transition-all" title="Sync Data Now">
+                <button onclick="refreshData()" class="min-w-[44px] min-h-[44px] flex items-center justify-center bg-[#1E222B] border border-[#2A2F3A] rounded-xl text-[#94A3B8] hover:text-[#5B8CFF] active:scale-95 transition-all" title="Sync Data Now">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 </button>
             </div>
         </header>
 
         <!-- CONTENT VIEW PANELS -->
-        <main class="p-4 md:p-6 space-y-6 flex-1">
+        <main class="p-4 md:p-6 space-y-6 flex-1 pb-[max(2rem,env(safe-area-inset-bottom))]">
             
             <div id="dashboard-tab" class="tab-content active space-y-6">
                 <!-- METRICS CARDS ROW 1 -->
@@ -221,9 +231,9 @@
                 <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                     <div class="relative flex-1">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]"></i>
-                        <input type="text" id="stockSearchInput" oninput="renderStockTable()" placeholder="Search stock by name, category, or supplier..." class="w-full bg-[#171A21] border border-[#2A2F3A] rounded-2xl py-2.5 pl-10 pr-4 text-xs font-semibold outline-none focus:border-[#5B8CFF] text-[#F8FAFC]">
+                        <input type="text" id="stockSearchInput" oninput="renderStockTable()" placeholder="Search stock by name, category, or supplier..." class="w-full bg-[#171A21] border border-[#2A2F3A] rounded-2xl py-3 pl-10 pr-4 text-xs font-semibold outline-none focus:border-[#5B8CFF] text-[#F8FAFC]">
                     </div>
-                    <button onclick="openWizard()" class="py-2.5 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-blue-400 active:scale-95 transition-all shadow-lg shadow-[#5B8CFF]/20">
+                    <button onclick="openWizard()" class="py-3 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-blue-400 active:scale-95 transition-all shadow-lg shadow-[#5B8CFF]/20 min-h-[44px]">
                         <i data-lucide="plus" class="w-4 h-4"></i> Add Product
                     </button>
                 </div>
@@ -256,10 +266,10 @@
                         <p class="text-[10px] text-[#94A3B8]">Monthly salary, expense tracking, and leave records</p>
                     </div>
                     <div class="flex gap-2 w-full sm:w-auto">
-                        <button onclick="exportStaffPDF()" class="flex-1 sm:flex-initial py-2.5 px-4 bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-[#22C55E] hover:text-[#0F1115] active:scale-95 transition-all">
+                        <button onclick="exportStaffPDF()" class="flex-1 sm:flex-initial py-3 px-4 bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-[#22C55E] hover:text-[#0F1115] active:scale-95 transition-all min-h-[44px]">
                             <i data-lucide="file-text" class="w-4 h-4"></i> Export Staff PDF
                         </button>
-                        <button onclick="openEmployeeModal()" class="flex-1 sm:flex-initial py-2.5 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-blue-400 active:scale-95 transition-all">
+                        <button onclick="openEmployeeModal()" class="flex-1 sm:flex-initial py-3 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 hover:bg-blue-400 active:scale-95 transition-all min-h-[44px]">
                             <i data-lucide="user-plus" class="w-4 h-4"></i> Add Staff
                         </button>
                     </div>
@@ -274,13 +284,13 @@
                 <div class="bg-[#171A21] p-4 rounded-3xl border border-[#2A2F3A] flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-[#94A3B8] font-bold">From:</span>
-                        <input type="date" id="reportFromDate" class="bg-[#0F1115] border border-[#2A2F3A] rounded-xl px-3 py-1.5 text-xs text-[#F8FAFC] outline-none">
+                        <input type="date" id="reportFromDate" class="bg-[#0F1115] border border-[#2A2F3A] rounded-xl px-3 py-2 text-xs text-[#F8FAFC] outline-none">
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-[#94A3B8] font-bold">To:</span>
-                        <input type="date" id="reportToDate" class="bg-[#0F1115] border border-[#2A2F3A] rounded-xl px-3 py-1.5 text-xs text-[#F8FAFC] outline-none">
+                        <input type="date" id="reportToDate" class="bg-[#0F1115] border border-[#2A2F3A] rounded-xl px-3 py-2 text-xs text-[#F8FAFC] outline-none">
                     </div>
-                    <button onclick="loadSalesReport()" class="py-2 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-xl text-xs font-extrabold">Filter Sales</button>
+                    <button onclick="loadSalesReport()" class="py-2.5 px-4 bg-[#5B8CFF] text-[#0F1115] rounded-xl text-xs font-extrabold min-h-[44px]">Filter Sales</button>
                 </div>
 
                 <div class="bg-[#171A21] border border-[#2A2F3A] rounded-3xl overflow-hidden">
@@ -311,8 +321,8 @@
                 <div class="bg-[#171A21] p-5 rounded-3xl border border-[#2A2F3A] space-y-4">
                     <h3 class="text-xs font-extrabold text-[#F8FAFC]">Product Categories</h3>
                     <div class="flex gap-2">
-                        <input type="text" id="newCategoryInput" placeholder="New Category Name (e.g. Footwear)" class="flex-1 bg-[#0F1115] border border-[#2A2F3A] rounded-2xl px-4 py-2.5 text-xs text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
-                        <button onclick="handleAddCategory()" class="py-2.5 px-5 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-bold">Add Category</button>
+                        <input type="text" id="newCategoryInput" placeholder="New Category Name (e.g. Footwear)" class="flex-1 bg-[#0F1115] border border-[#2A2F3A] rounded-2xl px-4 py-3 text-xs text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
+                        <button onclick="handleAddCategory()" class="py-3 px-5 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-xs font-bold min-h-[44px]">Add Category</button>
                     </div>
                     <div id="categoriesBadgeList" class="flex flex-wrap gap-2 pt-2">
                         <!-- Category badges JS -->
@@ -324,7 +334,7 @@
                         <i data-lucide="trash-2" class="w-4 h-4"></i> Development Data Reset
                     </h3>
                     <p class="text-xs text-[#94A3B8]">Clear all product items, inventory records, sales logs, and employee rosters from database to restart testing.</p>
-                    <button onclick="handleDevReset()" class="py-2.5 px-5 bg-[#EF4444]/10 border border-[#EF4444]/40 text-[#EF4444] rounded-2xl text-xs font-extrabold hover:bg-[#EF4444] hover:text-white transition-all">
+                    <button onclick="handleDevReset()" class="py-3 px-5 bg-[#EF4444]/10 border border-[#EF4444]/40 text-[#EF4444] rounded-2xl text-xs font-extrabold hover:bg-[#EF4444] hover:text-white transition-all min-h-[44px]">
                         Reset All Application Data
                     </button>
                 </div>
@@ -336,10 +346,10 @@
     <div id="wizard-modal" class="hidden fixed inset-0 bg-[#0F1115] z-50 flex-col animate-[fadeIn_0.2s_ease-out]">
         
         <!-- STEP 1: CAPTURE PHOTO -->
-        <div id="wiz-step-1" class="flex-1 flex flex-col p-6 justify-between text-[#F8FAFC] max-w-lg mx-auto w-full">
+        <div id="wiz-step-1" class="flex-1 flex flex-col p-6 justify-between text-[#F8FAFC] max-w-lg mx-auto w-full pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-black">New Product</h2>
-                <button onclick="closeWizard()" class="p-2 bg-[#171A21] border border-[#2A2F3A] rounded-full active:scale-95"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <button onclick="closeWizard()" class="p-2 bg-[#171A21] border border-[#2A2F3A] rounded-full active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
 
             <div class="my-auto flex flex-col items-center">
@@ -375,7 +385,7 @@
         </div>
 
         <!-- STEP 3: PREVIEW & DETAILS -->
-        <div id="wiz-step-3" class="hidden flex-1 flex flex-col bg-[#0F1115] text-[#F8FAFC] overflow-hidden max-w-lg mx-auto w-full">
+        <div id="wiz-step-3" class="hidden flex-1 flex flex-col bg-[#0F1115] text-[#F8FAFC] overflow-hidden max-w-lg mx-auto w-full pt-[max(1rem,env(safe-area-inset-top))]">
             <div class="px-6 py-5 bg-[#171A21] border-b border-[#2A2F3A] flex items-center justify-between shadow-sm z-10">
                 <h2 class="text-xl font-black">Product Details</h2>
                 <button onclick="saveWizardProduct()" class="w-10 h-10 bg-[#5B8CFF] text-[#0F1115] rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform" title="Save Product">
@@ -383,7 +393,7 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar">
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 hide-scrollbar pb-[max(2rem,env(safe-area-inset-bottom))]">
                 <div class="relative w-full h-48 bg-[#171A21] rounded-3xl overflow-hidden shadow-md border border-[#2A2F3A]">
                     <img id="wiz-step3-preview" src="" class="w-full h-full object-cover">
                     <div class="absolute top-3 right-3 w-8 h-8 bg-[#22C55E] text-[#0F1115] rounded-full flex items-center justify-center shadow-md">
@@ -393,7 +403,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-[#94A3B8] uppercase mb-1">Product Name</label>
-                    <input required id="wiz-name" type="text" placeholder="e.g. Smart Watch" class="w-full bg-[#171A21] border border-[#2A2F3A] rounded-2xl py-3 px-4 text-base font-bold outline-none focus:border-[#5B8CFF] text-[#F8FAFC]" />
+                    <input required id="wiz-name" type="text" placeholder="e.g. Smart Watch" class="w-full bg-[#171A21] border border-[#2A2F3A] rounded-2xl py-3.5 px-4 text-base font-bold outline-none focus:border-[#5B8CFF] text-[#F8FAFC]" />
                 </div>
 
                 <div class="bg-[#171A21] p-4 rounded-3xl border border-[#2A2F3A] space-y-3">
@@ -401,7 +411,7 @@
                     
                     <div>
                         <label class="block text-xs font-semibold text-[#94A3B8] mb-1">Category</label>
-                        <select id="wiz-category" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-2.5 px-3 text-xs font-semibold outline-none text-[#F8FAFC]">
+                        <select id="wiz-category" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-3 px-3 text-xs font-semibold outline-none text-[#F8FAFC]">
                             <option value="1">General</option>
                         </select>
                     </div>
@@ -409,21 +419,21 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-[#94A3B8] mb-1">Buy Price (₹)</label>
-                            <input required id="wiz-buy-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-2.5 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
+                            <input required id="wiz-buy-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-3 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-[#94A3B8] mb-1">Sell Price (₹)</label>
-                            <input required id="wiz-sell-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-2.5 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
+                            <input required id="wiz-sell-price" type="number" step="0.01" placeholder="0.00" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-3 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-[#94A3B8] mb-1">Stock Quantity</label>
-                        <input required id="wiz-stock" type="number" value="10" placeholder="Units" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-2.5 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
+                        <input required id="wiz-stock" type="number" value="10" placeholder="Units" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl py-3 px-3 text-xs font-bold outline-none text-[#F8FAFC]" />
                     </div>
                 </div>
 
-                <button onclick="saveWizardProduct()" class="w-full py-3.5 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-sm font-extrabold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                <button onclick="saveWizardProduct()" class="w-full py-4 bg-[#5B8CFF] text-[#0F1115] rounded-2xl text-sm font-extrabold shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2 min-h-[48px]">
                     <i data-lucide="check-circle" class="w-5 h-5"></i> Save Product
                 </button>
             </div>
@@ -445,7 +455,7 @@
         <div class="bg-[#171A21] border border-[#2A2F3A] w-full max-w-sm rounded-3xl p-5 shadow-2xl">
             <div class="flex justify-between items-center mb-3">
                 <h3 id="statsTitle" class="text-xs font-extrabold text-[#F8FAFC]">Product Details</h3>
-                <button onclick="closeStatsModal()" class="p-1 bg-[#1E222B] rounded-full text-[#94A3B8]"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="closeStatsModal()" class="p-1 bg-[#1E222B] rounded-full text-[#94A3B8] min-w-[36px] min-h-[36px] flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="w-full h-44 bg-[#0F1115] border border-[#2A2F3A] rounded-2xl mb-3 overflow-hidden flex items-center justify-center">
                 <img id="statsImg" src="" class="w-full h-full object-cover hidden" alt="Product Image">
@@ -468,7 +478,7 @@
                     <span id="statsStock" class="font-bold text-[#22C55E]">0 Units</span>
                 </div>
             </div>
-            <button onclick="closeStatsModal()" class="w-full py-2 bg-[#5B8CFF] text-[#0F1115] rounded-xl text-xs font-bold mt-4">Close Preview</button>
+            <button onclick="closeStatsModal()" class="w-full py-2.5 bg-[#5B8CFF] text-[#0F1115] rounded-xl text-xs font-bold mt-4 min-h-[44px]">Close Preview</button>
         </div>
     </div>
 
@@ -477,30 +487,30 @@
         <div class="bg-[#171A21] border border-[#2A2F3A] w-full max-w-sm rounded-3xl p-5 shadow-2xl">
             <div class="flex justify-between items-center mb-3">
                 <h3 class="text-xs font-extrabold text-[#F8FAFC]">Add New Employee</h3>
-                <button onclick="closeEmployeeModal()" class="p-1 bg-[#1E222B] rounded-full text-[#94A3B8]"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="closeEmployeeModal()" class="p-1 bg-[#1E222B] rounded-full text-[#94A3B8] min-w-[36px] min-h-[36px] flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <form onsubmit="handleSaveEmployee(event)" class="space-y-3 text-xs">
                 <div>
                     <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Full Name</label>
-                    <input required id="empNameInput" type="text" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
+                    <input required id="empNameInput" type="text" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
                 </div>
                 <div>
                     <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Role / Position</label>
-                    <input required id="empRoleInput" type="text" placeholder="e.g. Sales Associate" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
+                    <input required id="empRoleInput" type="text" placeholder="e.g. Sales Associate" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Monthly Salary (₹)</label>
-                        <input required id="empSalaryInput" type="number" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
+                        <input required id="empSalaryInput" type="number" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
                     </div>
                     <div>
                         <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Holidays Allowance</label>
-                        <input required id="empHolidaysInput" type="number" value="12" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
+                        <input required id="empHolidaysInput" type="number" value="12" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none focus:border-[#5B8CFF]">
                     </div>
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="submit" class="flex-1 py-2.5 bg-[#5B8CFF] text-[#0F1115] rounded-xl font-bold">Add Staff</button>
-                    <button type="button" onclick="closeEmployeeModal()" class="flex-1 py-2.5 bg-[#1E222B] text-[#94A3B8] rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 bg-[#5B8CFF] text-[#0F1115] rounded-xl font-bold min-h-[44px]">Add Staff</button>
+                    <button type="button" onclick="closeEmployeeModal()" class="flex-1 py-3 bg-[#1E222B] text-[#94A3B8] rounded-xl font-bold min-h-[44px]">Cancel</button>
                 </div>
             </form>
         </div>
@@ -514,25 +524,25 @@
                 <input type="hidden" id="leaveEmpId">
                 <div>
                     <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Leave Date</label>
-                    <input required id="leaveDate" type="date" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none">
+                    <input required id="leaveDate" type="date" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none">
                 </div>
                 <div>
                     <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Days to Deduct</label>
-                    <input required id="leaveDays" type="number" min="1" value="1" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none">
+                    <input required id="leaveDays" type="number" min="1" value="1" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none">
                 </div>
                 <div>
                     <label class="block text-[10px] text-[#94A3B8] font-bold mb-1">Reason / Note</label>
-                    <input id="leaveReason" type="text" placeholder="e.g. Sick Leave" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-2.5 text-[#F8FAFC] outline-none">
+                    <input id="leaveReason" type="text" placeholder="e.g. Sick Leave" class="w-full bg-[#0F1115] border border-[#2A2F3A] rounded-xl p-3 text-[#F8FAFC] outline-none">
                 </div>
                 <div class="flex gap-2 pt-2">
-                    <button type="submit" class="flex-1 py-2 bg-[#5B8CFF] text-[#0F1115] rounded-xl font-bold">Deduct Leave</button>
-                    <button type="button" onclick="closeLeaveModal()" class="flex-1 py-2 bg-[#1E222B] text-[#94A3B8] rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-[#5B8CFF] text-[#0F1115] rounded-xl font-bold min-h-[44px]">Deduct Leave</button>
+                    <button type="button" onclick="closeLeaveModal()" class="flex-1 py-2.5 bg-[#1E222B] text-[#94A3B8] rounded-xl font-bold min-h-[44px]">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
     <script>
         let deferredPromptAdmin;
         window.addEventListener('beforeinstallprompt', (e) => {
