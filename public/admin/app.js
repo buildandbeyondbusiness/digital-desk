@@ -10,6 +10,7 @@ let salesTrendChartInstance = null;
 let topProductsChartInstance = null;
 let paymentModeChartInstance = null;
 let hourlySalesChartInstance = null;
+let isWizardSaving = false;
 
 // Wizard State
 let wizardState = {
@@ -28,15 +29,15 @@ function setSyncStatus(status) {
     if (!badge || !dot || !text) return;
 
     if (status === 'synced') {
-        badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30";
+        badge.className = "flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30";
         dot.className = "w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse";
         text.textContent = "Live Sync";
     } else if (status === 'syncing') {
-        badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30";
+        badge.className = "flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/30";
         dot.className = "w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-ping";
         text.textContent = "Syncing...";
     } else {
-        badge.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30";
+        badge.className = "flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-bold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30";
         dot.className = "w-1.5 h-1.5 rounded-full bg-[#EF4444]";
         text.textContent = "Offline";
     }
@@ -361,6 +362,7 @@ function renderStockTable() {
 
 // --- 4-STEP WIZARD ---
 function openWizard() {
+    isWizardSaving = false;
     wizardState = { step: 1, photoFile: null, photoBase64: null, uploadedUrl: null };
     showWizardStep(1);
     document.getElementById('wiz-photo-input').value = '';
@@ -373,6 +375,7 @@ function openWizard() {
 }
 
 function closeWizard() {
+    isWizardSaving = false;
     document.getElementById('wizard-modal').classList.add('hidden');
     document.getElementById('wizard-modal').classList.remove('flex');
 }
@@ -428,6 +431,8 @@ async function handleWizardPhotoSelected(event) {
 }
 
 async function saveWizardProduct() {
+    if (isWizardSaving) return;
+
     const name = document.getElementById('wiz-name').value.trim();
     const categoryId = document.getElementById('wiz-category').value || 1;
     const buyPrice = document.getElementById('wiz-buy-price').value || 0;
@@ -439,6 +444,16 @@ async function saveWizardProduct() {
         document.getElementById('wiz-name').focus();
         return;
     }
+
+    isWizardSaving = true;
+
+    // Disable Step 3 buttons during upload to prevent duplicate taps
+    const step3Btns = document.querySelectorAll('#wiz-step-3 button');
+    step3Btns.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+        b.style.pointerEvents = 'none';
+    });
 
     const formData = new FormData();
     formData.append('name', name);
@@ -462,10 +477,17 @@ async function saveWizardProduct() {
         setTimeout(() => {
             closeWizard();
             refreshData();
+            isWizardSaving = false;
         }, 1500);
 
     } catch (err) {
         showToast('Error saving product', true);
+        isWizardSaving = false;
+        step3Btns.forEach(b => {
+            b.disabled = false;
+            b.style.opacity = '1';
+            b.style.pointerEvents = 'auto';
+        });
     }
 }
 

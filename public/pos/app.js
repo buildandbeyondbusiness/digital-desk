@@ -7,6 +7,7 @@ let cart = {};
 let currentSearch = '';
 let posSearchQuery = '';
 let todayRevenue = 0;
+let isWizardSaving = false;
 
 // Wizard State
 let wizardState = {
@@ -262,6 +263,7 @@ async function deleteProduct(id) {
 // --- 4-STEP PRODUCT WIZARD FLOW ---
 
 function openWizard() {
+    isWizardSaving = false;
     wizardState = { step: 1, photoFile: null, photoBase64: null, uploadedUrl: null };
     showWizardStep(1);
     document.getElementById('wiz-photo-input').value = '';
@@ -274,6 +276,7 @@ function openWizard() {
 }
 
 function closeWizard() {
+    isWizardSaving = false;
     document.getElementById('wizard-modal').classList.add('hidden');
     document.getElementById('wizard-modal').classList.remove('flex');
 }
@@ -329,6 +332,8 @@ async function handleWizardPhotoSelected(event) {
 }
 
 async function saveWizardProduct() {
+    if (isWizardSaving) return;
+
     const name = document.getElementById('wiz-name').value.trim();
     const categoryId = document.getElementById('wiz-category').value || 1;
     const buyPrice = document.getElementById('wiz-buy-price').value || 0;
@@ -345,6 +350,16 @@ async function saveWizardProduct() {
         document.getElementById('wiz-sell-price').focus();
         return;
     }
+
+    isWizardSaving = true;
+
+    // Show loading spinner on Save buttons & disable duplicate taps
+    const step3Btns = document.querySelectorAll('#wiz-step-3 button');
+    step3Btns.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+        b.style.pointerEvents = 'none';
+    });
 
     const formData = new FormData();
     formData.append('name', name);
@@ -368,10 +383,17 @@ async function saveWizardProduct() {
         setTimeout(() => {
             closeWizard();
             loadProducts();
+            isWizardSaving = false;
         }, 1500);
 
     } catch (err) {
         showToast('Error saving product', 'error');
+        isWizardSaving = false;
+        step3Btns.forEach(b => {
+            b.disabled = false;
+            b.style.opacity = '1';
+            b.style.pointerEvents = 'auto';
+        });
     }
 }
 
@@ -419,7 +441,7 @@ function setPaymentMode(mode) {
     ['pm-cash', 'pm-upi', 'pm-card'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.className = `flex-1 py-2 rounded-xl text-sm font-bold transition-all ${
+            el.className = `flex-1 py-2.5 rounded-xl text-sm font-bold transition-all min-h-[44px] ${
                 id === `pm-${mode.toLowerCase()}` 
                 ? 'bg-slate-900 text-white' 
                 : 'bg-slate-100 text-slate-600'
@@ -557,16 +579,16 @@ function renderInventory() {
             </div>
             
             <div class="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl border border-slate-200">
-                <button onclick="updateStock(${product.id}, -1)" class="p-2 bg-white rounded-xl shadow-sm active:bg-slate-200 text-slate-600">
+                <button onclick="updateStock(${product.id}, -1)" class="p-2 bg-white rounded-xl shadow-sm active:bg-slate-200 text-slate-600 min-w-[36px] min-h-[36px] flex items-center justify-center">
                     <i data-lucide="minus" class="w-5 h-5"></i>
                 </button>
                 <span class="font-bold text-lg w-6 text-center">${product.stock}</span>
-                <button onclick="updateStock(${product.id}, 1)" class="p-2 bg-white rounded-xl shadow-sm active:bg-slate-200 text-slate-600">
+                <button onclick="updateStock(${product.id}, 1)" class="p-2 bg-white rounded-xl shadow-sm active:bg-slate-200 text-slate-600 min-w-[36px] min-h-[36px] flex items-center justify-center">
                     <i data-lucide="plus" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <button onclick="deleteProduct(${product.id})" class="ml-3 p-3 text-red-400 hover:text-red-600 active:scale-95 bg-red-50 rounded-2xl">
+            <button onclick="deleteProduct(${product.id})" class="ml-3 p-3 text-red-400 hover:text-red-600 active:scale-95 bg-red-50 rounded-2xl min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <i data-lucide="trash-2" class="w-5 h-5"></i>
             </button>
         </div>
@@ -623,9 +645,9 @@ function renderPOS() {
     els.cartTotal.innerText = `${formatINR(total)}`;
 
     if (total > 0) {
-        els.chargeBtn.className = 'w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-green-500 text-white shadow-xl shadow-green-200';
+        els.chargeBtn.className = 'w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-green-500 text-white shadow-xl shadow-green-200 min-h-[56px]';
     } else {
-        els.chargeBtn.className = 'w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-100 text-slate-400';
+        els.chargeBtn.className = 'w-full py-5 rounded-2xl text-xl font-black flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-100 text-slate-400 min-h-[56px]';
     }
 }
 
