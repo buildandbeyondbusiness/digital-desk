@@ -32,6 +32,10 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), staticOpt
 app.use('/pos', express.static(path.join(__dirname, '../public/pos'), staticOptions));
 app.use('/admin', express.static(path.join(__dirname, '../public/admin'), staticOptions));
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.get('/', (req, res) => {
   res.redirect('/pos/');
 });
@@ -69,6 +73,6 @@ app.get('/api/export/:type/:format', (req, res) => {
   res.send(`Export ${type} as ${format} - Demo Report Data`);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
